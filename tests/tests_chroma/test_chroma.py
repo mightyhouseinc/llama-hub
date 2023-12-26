@@ -17,15 +17,12 @@ def chroma_client(chroma_persist_dir: str) -> Generator[Any, None, None]:
     import chromadb
     from chromadb.config import Settings
 
-    # The client settings must align with ChromaReader's settings otherwise
-    # an exception will be raised.
-    client = chromadb.Client(
+    yield chromadb.Client(
         Settings(
             is_persistent=True,
             persist_directory=chroma_persist_dir,
         )
     )
-    yield client
 
 
 def test_chroma_with_client(chroma_client: Any) -> None:

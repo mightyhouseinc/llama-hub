@@ -49,10 +49,9 @@ class DocstringWalker(BaseReader):
             A list of loaded documents.
         """
 
-        llama_docs = self.process_directory(
+        return self.process_directory(
             code_dir, skip_initpy, fail_on_malformed_files
         )
-        return llama_docs
 
     def process_directory(
         self,
@@ -141,8 +140,7 @@ class DocstringWalker(BaseReader):
                 sub_text = self.process_elem(elem, module_name)
                 sub_texts.append(sub_text)
         module_text += "\n".join(sub_texts)
-        document = Document(text=module_text)
-        return document
+        return Document(text=module_text)
 
     def process_class(self, class_node: ast.ClassDef, parent_node: str):
         """

@@ -25,7 +25,7 @@ def _depth_first_yield(
             new_path.append(key)
             yield from _depth_first_yield(value, levels_back, new_path)
     elif isinstance(json_data, list):
-        for _, value in enumerate(json_data):
+        for value in json_data:
             yield from _depth_first_yield(value, levels_back, path)
     else:
         new_path = path[-levels_back:]
@@ -71,8 +71,7 @@ class JSONReader(BaseReader):
         with open(file, "r") as f:
             data = []
             if is_jsonl:
-                for line in f:
-                    data.append(json.loads(line.strip()))
+                data.extend(json.loads(line.strip()) for line in f)
             else:
                 data = json.load(f)
             documents = []
@@ -88,7 +87,7 @@ class JSONReader(BaseReader):
                             text="\n".join(useful_lines), extra_info=extra_info or {}
                         )
                     )
-                elif self.levels_back is not None:
+                else:
                     lines = [*_depth_first_yield(json_object, self.levels_back, [])]
                     documents.append(
                         Document(text="\n".join(lines), extra_info=extra_info or {})

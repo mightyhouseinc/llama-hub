@@ -60,18 +60,14 @@ class FuzzyCitationQueryEngine(CustomQueryEngine):
             top_chunks = defaultdict(list)
             prev_idx = -1
             for response_sent_idx, node_sent_idx in sorted(top_sentences.keys()):
-                if prev_idx == -1:
+                if prev_idx == -1 or node_sent_idx - prev_idx != 1:
                     top_chunks[response_sent_idx].append(
                         top_sentences[(response_sent_idx, node_sent_idx)]
                     )
-                elif node_sent_idx - prev_idx == 1:
+                else:
                     top_chunks[response_sent_idx][-1] += top_sentences[
                         (response_sent_idx, node_sent_idx)
                     ]
-                else:
-                    top_chunks[response_sent_idx].append(
-                        top_sentences[(response_sent_idx, node_sent_idx)]
-                    )
                 prev_idx = node_sent_idx
 
             # associate chunks with their nodes

@@ -121,12 +121,10 @@ class SnowflakeReader(BaseReader):
         try:
             result = self.execute_query(query)
 
-            for item in result:
-                # fetch each item
-                doc_str = ", ".join([str(entry) for entry in item])
-                documents.append(Document(text=doc_str))
+            documents.extend(
+                Document(text=", ".join([str(entry) for entry in item]))
+                for item in result
+            )
             return documents
         except Exception as e:
-            logger.error(
-                "An error occurred while loading the data: {}".format(e), exc_info=True
-            )
+            logger.error(f"An error occurred while loading the data: {e}", exc_info=True)

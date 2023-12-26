@@ -95,14 +95,11 @@ class CogniswitchToolSpec(BaseToolSpec):
                 api_url, headers=headers, verify=False, data=data, files=files
             )
 
-        elif file:
+        else:
             api_url = self.source_file_endpoint
 
             headers = self.headers
-            if file is not None:
-                files = {"file": open(file, "rb")}
-            else:
-                files = None
+            files = {"file": open(file, "rb")} if file is not None else None
             data = {
                 "url": url,
                 "documentName": document_name,
@@ -160,11 +157,10 @@ class CogniswitchToolSpec(BaseToolSpec):
             params=params,
             verify=False,
         )
-        if response.status_code == 200:
-            source_info = response.json()
-            return source_info[-1]
-        else:
+        if response.status_code != 200:
             # error_message = response.json()["message"]
             return {
                 "message": "Bad Request",
             }
+        source_info = response.json()
+        return source_info[-1]

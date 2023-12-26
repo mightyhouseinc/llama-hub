@@ -130,12 +130,12 @@ class DenseXRetrievalPack(BaseLlamaPack):
                 if not output.strip().endswith('"') and not output.strip().endswith(
                     ","
                 ):
-                    output = output + '"'
-                output = output + " ]"
+                    output = f'{output}"'
+                output = f"{output} ]"
             if not output.strip().startswith("["):
                 if not output.strip().startswith('"'):
-                    output = '"' + output
-                output = "[ " + output
+                    output = f'"{output}'
+                output = f"[ {output}"
 
             try:
                 propositions = json.loads(output)
@@ -155,8 +155,7 @@ class DenseXRetrievalPack(BaseLlamaPack):
         assert isinstance(all_propositions, list)
         nodes = [TextNode(text=prop) for prop in all_propositions if prop]
 
-        sub_nodes = [IndexNode.from_text_node(n, node.node_id) for n in nodes]
-        return sub_nodes
+        return [IndexNode.from_text_node(n, node.node_id) for n in nodes]
 
     def _gen_propositions(self, nodes: List[TextNode]) -> List[TextNode]:
         """Get propositions."""

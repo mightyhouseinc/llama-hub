@@ -35,5 +35,4 @@ class AzureTranslateToolSpec(BaseToolSpec):
             headers=self.headers,
             json=[{"text": text}],
         )
-        response = request.json()
-        return response
+        return request.json()

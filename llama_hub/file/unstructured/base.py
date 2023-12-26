@@ -61,7 +61,7 @@ class UnstructuredReader(BaseReader):
             elements = partition_via_api(
                 filename=str(file),
                 api_key=self.api_key,
-                api_url=self.server_url + "/general/v0/general",
+                api_url=f"{self.server_url}/general/v0/general",
             )
         else:
             """Parse file locally"""

@@ -71,11 +71,7 @@ class FirebaseRealtimeDatabaseReader(BaseReader):
                 extra_info = {
                     "document_id": key,
                 }
-                if type(entry) is Dict and field in entry:
-                    text = entry[field]
-                else:
-                    text = str(entry)
-
+                text = entry[field] if type(entry) is Dict and field in entry else str(entry)
                 document = Document(text=text, extra_info=extra_info)
                 documents.append(document)
         elif isinstance(data, str):

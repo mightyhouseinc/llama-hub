@@ -110,18 +110,17 @@ class WordLiftLoader(BaseReader):
             metadata_fields = self.configure_options.get("metadata_fields", [])
 
             for item in data:
-                if not all(key in item for key in text_fields):
+                if any(key not in item for key in text_fields):
                     logging.warning(
                         f"Skipping document due to missing text fields: {item}"
                     )
                     continue
-                row = {}
-                for key, value in item.items():
-                    if key in text_fields or key in metadata_fields:
-                        row[key] = value
-                    else:
-                        row[key] = clean_value(value)
-
+                row = {
+                    key: value
+                    if key in text_fields or key in metadata_fields
+                    else clean_value(value)
+                    for key, value in item.items()
+                }
                 text_parts = [
                     get_separated_value(row, field.split("."))
                     for field in text_fields
@@ -166,8 +165,7 @@ class WordLiftLoader(BaseReader):
         """
         try:
             data = self.fetch_data()
-            documents = self.transform_data(data)
-            return documents
+            return self.transform_data(data)
         except (APICallError, DataTransformError):
             logging.error("Error loading data:", exc_info=True)
             raise
@@ -182,27 +180,26 @@ class WordLiftLoader(BaseReader):
         from graphql import parse, print_ast
         from graphql.language.ast import ArgumentNode, IntValueNode, NameNode
 
-        DEFAULT_PAGE = 0
-        DEFAULT_ROWS = 500
-
         query = self.query
-        page = DEFAULT_PAGE
-        rows = DEFAULT_ROWS
-
         ast = parse(query)
 
         field_node = ast.definitions[0].selection_set.selections[0]
 
-        if not any(arg.name.value == "page" for arg in field_node.arguments):
+        if all(arg.name.value != "page" for arg in field_node.arguments):
+            DEFAULT_PAGE = 0
+            page = DEFAULT_PAGE
             page_argument = ArgumentNode(
                 name=NameNode(value="page"), value=IntValueNode(value=page)
             )
+            DEFAULT_ROWS = 500
+
+            rows = DEFAULT_ROWS
+
             rows_argument = ArgumentNode(
                 name=NameNode(value="rows"), value=IntValueNode(value=rows)
             )
             field_node.arguments = field_node.arguments + (page_argument, rows_argument)
-        altered_query = print_ast(ast)
-        return altered_query
+        return print_ast(ast)
 
 
 def is_url(text: str) -> bool:
@@ -232,13 +229,12 @@ def is_valid_html(content: str) -> bool:
     if is_url(content):
         try:
             response = requests.get(content)
-            if response.status_code == 200:
-                html_content = response.text
-                return (
-                    BeautifulSoup(html_content, "html.parser").find("html") is not None
-                )
-            else:
+            if response.status_code != 200:
                 return False
+            html_content = response.text
+            return (
+                BeautifulSoup(html_content, "html.parser").find("html") is not None
+            )
         except (
             requests.exceptions.RequestException,
             requests.exceptions.ConnectionError,
@@ -254,9 +250,7 @@ def clean_value(x: any) -> any:
     """
     Cleans a value by checking if it's a URL and fetching its content using the WordLift Inspect API.
     """
-    if x is not None and not isinstance(x, list):
-        return clean_html(x)
-    return x
+    return clean_html(x) if x is not None and not isinstance(x, list) else x
 
 
 @staticmethod
@@ -268,7 +262,7 @@ def clean_html(text: str) -> str:
         return ""
 
     if isinstance(text, dict):
-        return str(text)
+        return text
     if isinstance(text, str):
         try:
             if is_url(text):
@@ -296,7 +290,7 @@ def clean_html(text: str) -> str:
             # If there is a connection error or the URL doesn't resolve, skip it
             return ""
 
-    return str(text)
+    return text
 
 
 @staticmethod
@@ -309,7 +303,7 @@ def get_separated_value(item: dict, field_keys: List[str]) -> any:
         return item
     key = field_keys[0]
     if isinstance(item, list):
-        if len(item) == 0:
+        if not item:
             return None
         else:
             item = item[0]

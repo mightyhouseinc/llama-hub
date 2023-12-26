@@ -21,7 +21,8 @@ class SDLReader(BaseReader):
             txt = f.read()
 
         ast = graphql.parse(txt)
-        chunks = []
-        for definition in ast.definitions:
-            chunks.append(txt[definition.loc.start : definition.loc.end])
+        chunks = [
+            txt[definition.loc.start : definition.loc.end]
+            for definition in ast.definitions
+        ]
         return [Document(text=chunk) for chunk in chunks]

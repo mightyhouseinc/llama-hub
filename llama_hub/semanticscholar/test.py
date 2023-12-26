@@ -28,9 +28,7 @@ full_text = True
 # it can take a long time to download
 total_papers = 50
 
-persist_dir = (
-    "./citation_" + query_space + "_" + str(total_papers) + "_" + str(full_text)
-)
+persist_dir = f"./citation_{query_space}_{total_papers}_{full_text}"
 
 
 if not os.path.exists(persist_dir):

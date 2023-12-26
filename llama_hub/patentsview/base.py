@@ -36,15 +36,10 @@ class PatentsviewReader(BaseReader):
 
         response = requests.post(BASE_URL, json=self.json)
 
-        if response.status_code == 200:
-            data = response.json()
-            patents = data.get("patents", [])
-
-            results = []
-            for patent in patents:
-                results.append(Document(text=patent["patent_abstract"]))
-
-        else:
+        if response.status_code != 200:
             raise Exception(f"Request failed with status code: {response.status_code}")
 
-        return results
+        data = response.json()
+        patents = data.get("patents", [])
+
+        return [Document(text=patent["patent_abstract"]) for patent in patents]

@@ -52,7 +52,4 @@ docstring: {ast.get_docstring(node)}
         Args:
             name (List[str]): The names of the functions to retrieve
         """
-        functions = ""
-        for name in names:
-            functions += self.get_function(name) + "\n"
-        return functions
+        return "".join(self.get_function(name) + "\n" for name in names)

@@ -20,13 +20,16 @@ def get_pdb_publications_from_rcsb(pdb_id: str) -> List[Dict]:
 
 
 def parse_rcsb_publication_dict(entry_response: Dict, pubmed_response: Dict):
-    parsed_dict = {}
     citations = entry_response["citation"]
     primary_citation = [pub for pub in citations if pub["id"] == "primary"][0]
-    parsed_dict[primary_citation["title"]] = {
-        "doi": pubmed_response["rcsb_pubmed_doi"],
-        "abstract": {"abstract": pubmed_response["rcsb_pubmed_abstract_text"]},
-        "primary": True,
+    parsed_dict = {
+        primary_citation["title"]: {
+            "doi": pubmed_response["rcsb_pubmed_doi"],
+            "abstract": {
+                "abstract": pubmed_response["rcsb_pubmed_abstract_text"]
+            },
+            "primary": True,
+        }
     }
     return primary_citation["title"], parsed_dict
 
@@ -39,18 +42,18 @@ def get_pdb_publications_from_ebi(pdb_id: str) -> List[Dict]:
         raise Exception(
             f"EBI API call for ({pdb_id}) failed with status code: {response.status_code}"
         )
-    pub_dicts = response.json()[pdb_id]
-    return pub_dicts
+    return response.json()[pdb_id]
 
 
 def parse_ebi_publication_list(pub_list: List[Dict]):
-    parsed_dict = {}
-    for i, pub_dict in enumerate(pub_list):
-        parsed_dict[pub_dict["title"]] = {
+    parsed_dict = {
+        pub_dict["title"]: {
             "doi": pub_dict["doi"],
             "abstract": pub_dict["abstract"],
             "primary": i == 0,
         }
+        for i, pub_dict in enumerate(pub_list)
+    }
     return pub_list[0]["title"], parsed_dict
 
 

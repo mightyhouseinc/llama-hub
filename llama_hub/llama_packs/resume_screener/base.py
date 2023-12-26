@@ -49,10 +49,7 @@ class ResumeScreenerDecision(BaseModel):
 
 
 def _format_criteria_str(criteria: List[str]) -> str:
-    criteria_str = ""
-    for criterion in criteria:
-        criteria_str += f"- {criterion}\n"
-    return criteria_str
+    return "".join(f"- {criterion}\n" for criterion in criteria)
 
 
 class ResumeScreenerPack(BaseLlamaPack):

@@ -140,5 +140,5 @@ def test_reading_multiple_modules(mocker):
     # Then
     assert len(docs) == 2
     assert isinstance(docs[0], Document)
-    assert all([doc.text.startswith("Module name: somefile") for doc in docs])
-    assert all([doc.text.endswith("Greeting string.\n") for doc in docs])
+    assert all(doc.text.startswith("Module name: somefile") for doc in docs)
+    assert all(doc.text.endswith("Greeting string.\n") for doc in docs)

@@ -27,7 +27,7 @@ class DeepLakeMultimodalRetrieverPack(BaseLlamaPack):
     ):
         # text vector store
         self._text_vectorstore = DeepLakeVectorStore(
-            dataset_path=dataset_path + "_text",
+            dataset_path=f"{dataset_path}_text",
             token=token,
             read_only=read_only,
             overwrite=overwrite,
@@ -36,7 +36,7 @@ class DeepLakeMultimodalRetrieverPack(BaseLlamaPack):
 
         # image vector store
         self._image_vectorstore = DeepLakeVectorStore(
-            dataset_path=dataset_path + "_image",
+            dataset_path=f"{dataset_path}_image",
             token=token,
             read_only=read_only,
             overwrite=overwrite,

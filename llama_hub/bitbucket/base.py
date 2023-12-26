@@ -60,9 +60,7 @@ class BitbucketReader(BaseReader):
 
             if response.status_code == 200:
                 repositories = response.json()["values"]
-                for repo in repositories:
-                    repo_slug = repo["slug"]
-                    slugs.append(repo_slug)
+                slugs.extend(repo["slug"] for repo in repositories)
         slugs.append(self.repository)
         return slugs
 
@@ -112,9 +110,7 @@ class BitbucketReader(BaseReader):
         children = response.json()
         if "errors" in children:
             raise ValueError(children["errors"])
-        if "lines" in children:
-            return children["lines"]
-        return []
+        return children["lines"] if "lines" in children else []
 
     def load_text(self, paths) -> List:
         text_dict = []
@@ -126,7 +122,7 @@ class BitbucketReader(BaseReader):
 
             for line_dict in lines_list:
                 text = line_dict.get("text", "")
-                concatenated_string = concatenated_string + " " + text
+                concatenated_string = f"{concatenated_string} {text}"
 
             text_dict.append(concatenated_string)
         return text_dict

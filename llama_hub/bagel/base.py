@@ -184,7 +184,4 @@ class BagelReader(BaseReader):
         if not results["embeddings"] and not results["documents"]:
             raise ValueError("No embeddings or documents found")
 
-        # create documents from the results
-        documents = self.create_documents(results)
-
-        return documents
+        return self.create_documents(results)

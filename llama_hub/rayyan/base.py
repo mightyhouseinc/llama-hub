@@ -88,9 +88,9 @@ class RayyanReader(BaseReader):
                 abstracts_arr = [
                     abstract["content"] for abstract in article["abstracts"]
                 ]
-                if len(abstracts_arr) > 0:
+                if abstracts_arr:
                     # map array into a string
-                    abstracts = "\n".join(abstracts_arr)[0:1024].strip()
+                    abstracts = "\n".join(abstracts_arr)[:1024].strip()
             title = article["title"]
             if title is not None:
                 title = title.strip()

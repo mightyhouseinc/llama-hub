@@ -194,9 +194,10 @@ class CustomRetriever(BaseRetriever):
 
         self._vector_retriever = vector_retriever
         self._kg_retriever = kg_retriever
-        if mode not in ("AND", "OR"):
+        if mode in {"AND", "OR"}:
+            self._mode = mode
+        else:
             raise ValueError("Invalid mode.")
-        self._mode = mode
 
     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
         """Retrieve nodes given query."""
@@ -215,5 +216,4 @@ class CustomRetriever(BaseRetriever):
         else:
             retrieve_ids = vector_ids.union(kg_ids)
 
-        retrieve_nodes = [combined_dict[rid] for rid in retrieve_ids]
-        return retrieve_nodes
+        return [combined_dict[rid] for rid in retrieve_ids]

@@ -9,7 +9,7 @@ from llama_index.schema import TextNode, NodeRelationship, RelatedNodeInfo
 
 class PreprocessReader(BaseReader):
     def __init__(self, api_key: str, *args, **kwargs):
-        if api_key is None or api_key == "":
+        if api_key is None or not api_key:
             raise ValueError(
                 "Please provide an api key to be used while doing the auth with the system."
             )
@@ -63,43 +63,47 @@ class PreprocessReader(BaseReader):
             elif self._filepath is not None:
                 self._get_data_by_filepath()
 
-            if self._chunks is not None:
-                if return_whole_document is True:
-                    return [
-                        Document(
-                            text=" ".join(self._chunks),
-                            metadata={"filename": os.path.basename(self._filepath)},
-                        )
-                    ]
-                else:
-                    return [
-                        Document(
-                            text=chunk,
-                            metadata={"filename": os.path.basename(self._filepath)},
-                        )
-                        for chunk in self._chunks
-                    ]
-            else:
+            if self._chunks is None:
                 raise Exception(
                     "There is error happened during handling your file, please try again."
                 )
 
-        else:
-            if return_whole_document is True:
-                return [
-                    Document(
-                        text=" ".join(self._chunks),
-                        metadata={"filename": os.path.basename(self._filepath)},
-                    )
-                ]
             else:
-                return [
-                    Document(
-                        text=chunk,
-                        metadata={"filename": os.path.basename(self._filepath)},
-                    )
-                    for chunk in self._chunks
-                ]
+                return (
+                    [
+                        Document(
+                            text=" ".join(self._chunks),
+                            metadata={
+                                "filename": os.path.basename(self._filepath)
+                            },
+                        )
+                    ]
+                    if return_whole_document is True
+                    else [
+                        Document(
+                            text=chunk,
+                            metadata={
+                                "filename": os.path.basename(self._filepath)
+                            },
+                        )
+                        for chunk in self._chunks
+                    ]
+                )
+        elif return_whole_document is True:
+            return [
+                Document(
+                    text=" ".join(self._chunks),
+                    metadata={"filename": os.path.basename(self._filepath)},
+                )
+            ]
+        else:
+            return [
+                Document(
+                    text=chunk,
+                    metadata={"filename": os.path.basename(self._filepath)},
+                )
+                for chunk in self._chunks
+            ]
 
     def get_process_id(self):
         return self._process_id

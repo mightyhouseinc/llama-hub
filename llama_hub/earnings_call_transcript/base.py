@@ -21,12 +21,12 @@ class EarningsCallTranscript(BaseReader):
         curr_year = datetime.now().year
         assert year <= curr_year, "The year should be less than current year"
 
-        assert quarter in [
+        assert quarter in {
             "Q1",
             "Q2",
             "Q3",
             "Q4",
-        ], 'The quarter should from the list ["Q1","Q2","Q3","Q4"]'
+        }, 'The quarter should from the list ["Q1","Q2","Q3","Q4"]'
         self.year = year
         self.ticker = ticker
         self.quarter = quarter
