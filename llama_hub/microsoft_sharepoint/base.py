@@ -70,9 +70,8 @@ class SharePointReader(BaseReader):
         if response.status_code == 200 and "access_token" in response.json().keys():
             return response.json()["access_token"]
 
-        else:
-            logger.error(response.json()["error"])
-            raise ValueError(response.json()["error_description"])
+        logger.error(response.json()["error"])
+        raise ValueError(response.json()["error_description"])
 
     def _get_site_id_with_host_name(self, access_token, sharepoint_site_name) -> str:
         """
@@ -256,27 +255,20 @@ class SharePointReader(BaseReader):
         Returns:
         - Dict[str, str]: A dictionary containing the extracted metadata.
         """
-        # Extract the required metadata for file.
-
-        file_metadata = {
+        return {
             "file_id": item.get("id"),
             "file_name": item.get("name"),
             "url": item.get("webUrl"),
         }
-
-        return file_metadata
 
     def _download_file(
         self,
         item: Dict[str, Any],
         download_dir: str,
     ):
-        metadata = {}
-
         file_path = self._download_file_by_url(item, download_dir)
 
-        metadata[file_path] = self._extract_metadata_for_file(item)
-        return metadata
+        return {file_path: self._extract_metadata_for_file(item)}
 
     def _download_files_from_sharepoint(
         self,
@@ -310,11 +302,9 @@ class SharePointReader(BaseReader):
             sharepoint_folder_path
         )
 
-        metadata = self._download_files_and_extract_metadata(
+        return self._download_files_and_extract_metadata(
             self.sharepoint_folder_id, download_dir, recursive
         )
-
-        return metadata
 
     def _load_documents_with_metadata(
         self,

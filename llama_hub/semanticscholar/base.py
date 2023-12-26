@@ -129,16 +129,14 @@ class SemanticScholarReader(BaseReader):
                     )
                     continue
 
-                text = ""
-                for page in pdf.pages:
-                    text += page.extract_text()
+                text = "".join(page.extract_text() for page in pdf.pages)
                 full_text_docs.append(Document(text=text, extra_info=metadata))
 
         return full_text_docs
 
     def _download_pdf_from_arxiv(self, paper_id, arxiv_id):
         paper = next(self.arxiv.Search(id_list=[arxiv_id], max_results=1).results())
-        paper.download_pdf(dirpath=self.base_dir, filename=paper_id + ".pdf")
+        paper.download_pdf(dirpath=self.base_dir, filename=f"{paper_id}.pdf")
         return os.path.join(self.base_dir, f"{paper_id}.pdf")
 
     def load_data(
@@ -201,7 +199,7 @@ class SemanticScholarReader(BaseReader):
             text = None
             # concat title and abstract
             if abstract and title:
-                text = title + " " + abstract
+                text = f"{title} {abstract}"
             elif not abstract:
                 text = title
 

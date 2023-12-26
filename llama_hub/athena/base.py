@@ -41,22 +41,12 @@ class AthenaReader(BaseReader):
         import boto3
         from sqlalchemy.engine import create_engine
 
-        if not aws_access_key or not aws_secret_key:
-            conn_str = (
-                "awsathena+rest://:@athena.{region_name}.amazonaws.com:443/"
-                "{database}?s3_staging_dir={s3_staging_dir}?work_group={workgroup}"
-            )
+        conn_str = (
+            "awsathena+rest://:@athena.{region_name}.amazonaws.com:443/"
+            "{database}?s3_staging_dir={s3_staging_dir}?work_group={workgroup}"
+        )
 
-            engine = create_engine(
-                conn_str.format(
-                    region_name=aws_region,
-                    s3_staging_dir=s3_staging_dir,
-                    database=database,
-                    workgroup=workgroup,
-                )
-            )
-
-        else:
+        if aws_access_key and aws_secret_key:
             warnings.warn(
                 "aws_access_key and aws_secret_key are set. We recommend to use IAM role instead."
             )
@@ -67,17 +57,13 @@ class AthenaReader(BaseReader):
                 region_name=aws_region,
             )
 
-            conn_str = (
-                "awsathena+rest://:@athena.{region_name}.amazonaws.com:443/"
-                "{database}?s3_staging_dir={s3_staging_dir}?work_group={workgroup}"
+        engine = create_engine(
+            conn_str.format(
+                region_name=aws_region,
+                s3_staging_dir=s3_staging_dir,
+                database=database,
+                workgroup=workgroup,
             )
+        )
 
-            engine = create_engine(
-                conn_str.format(
-                    region_name=aws_region,
-                    s3_staging_dir=s3_staging_dir,
-                    database=database,
-                    workgroup=workgroup,
-                )
-            )
         return engine

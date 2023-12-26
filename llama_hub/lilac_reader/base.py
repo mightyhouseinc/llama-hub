@@ -71,10 +71,7 @@ class LilacReader(BaseReader):
         def _item_from_path(item: ll.Item, path: ll.PathTuple) -> ll.Item:
             if len(path) == 1:
                 item = item[path[0]]
-                if isinstance(item, dict):
-                    return item[ll.VALUE_KEY]
-                else:
-                    return item
+                return item[ll.VALUE_KEY] if isinstance(item, dict) else item
             else:
                 return _item_from_path(item[path[0]], path[1:])
 

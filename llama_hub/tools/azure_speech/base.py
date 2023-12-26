@@ -38,9 +38,9 @@ class AzureSpeechToolSpec(BaseToolSpec):
             return "Audio playback complete."
         elif result.reason == speechsdk.ResultReason.Canceled:
             cancellation_details = result.cancellation_details
-            print("Speech synthesis canceled: {}".format(cancellation_details.reason))
+            print(f"Speech synthesis canceled: {cancellation_details.reason}")
             if cancellation_details.reason == speechsdk.CancellationReason.Error:
-                print("Error details: {}".format(cancellation_details.error_details))
+                print(f"Error details: {cancellation_details.error_details}")
 
     def _transcribe(self, speech_recognizer) -> List[str]:
         done = False

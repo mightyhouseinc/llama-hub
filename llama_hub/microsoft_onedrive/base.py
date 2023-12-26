@@ -44,7 +44,7 @@ class OneDriveReader(BaseReader):
         self.client_id = client_id
         self.tenant_id = tenant_id
         self.client_secret = client_secret
-        self._is_interactive_auth = False if self.client_secret else True
+        self._is_interactive_auth = not self.client_secret
 
     def _authenticate_with_msal(self) -> Any:
         """Authenticate with MSAL.
@@ -120,11 +120,7 @@ class OneDriveReader(BaseReader):
             endpoint += f"users/{userprincipalname}/drive"
 
         # Update the endpoint for relative paths or item IDs
-        if isRelativePath:
-            endpoint += f"/root:/{item_ref}"
-        else:
-            endpoint += f"/items/{item_ref}"
-
+        endpoint += f"/root:/{item_ref}" if isRelativePath else f"/items/{item_ref}"
         # If the target is not a file, adjust the endpoint to retrieve children of a folder
         if not isFile:
             endpoint += ":/children" if isRelativePath else "/children"
@@ -225,20 +221,20 @@ class OneDriveReader(BaseReader):
         # Extract the required metadata for file.
         created_by = item.get("createdBy", {})
         modified_by = item.get("lastModifiedBy", {})
-        props = {
+        return {
             "file_id": item.get("id"),
             "file_name": item.get("name"),
             "created_by_user": created_by.get("user", {}).get("displayName"),
             "created_by_app": created_by.get("application", {}).get("displayName"),
             "created_dateTime": item.get("createdDateTime"),
-            "last_modified_by_user": modified_by.get("user", {}).get("displayName"),
+            "last_modified_by_user": modified_by.get("user", {}).get(
+                "displayName"
+            ),
             "last_modified_by_app": modified_by.get("application", {}).get(
                 "displayName"
             ),
             "last_modified_datetime": item.get("lastModifiedDateTime"),
         }
-
-        return props
 
     def _check_approved_mimetype_and_download_file(
         self,
@@ -312,14 +308,12 @@ class OneDriveReader(BaseReader):
         - Exception: If items can't be retrieved for the current item.
         """
 
-        data = self._get_items_in_drive_with_maxretries(
+        if data := self._get_items_in_drive_with_maxretries(
             access_token,
             item_id,
             userprincipalname=userprincipalname,
             isRelativePath=isRelativePath,
-        )
-
-        if data:
+        ):
             metadata = {}
             for item in data["value"]:
                 if (
@@ -514,6 +508,4 @@ class OneDriveReader(BaseReader):
                 )
                 return self._load_documents_with_metadata(temp_dir, recursive=recursive)
         except Exception as e:
-            logger.error(
-                "An error occurred while loading the data: {}".format(e), exc_info=True
-            )
+            logger.error(f"An error occurred while loading the data: {e}", exc_info=True)

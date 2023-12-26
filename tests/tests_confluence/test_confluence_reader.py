@@ -1006,5 +1006,4 @@ def _mock_get_cursor_pages(path: Optional[str], params):
     else:
         links = {}
 
-    body = {"results": results, "_links": links}
-    return body
+    return {"results": results, "_links": links}

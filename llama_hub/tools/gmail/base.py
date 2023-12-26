@@ -103,7 +103,7 @@ class GmailToolSpec(BaseToolSpec):
                 extra_info = message_data
                 results.append(Document(text=text, extra_info=extra_info))
         except Exception as e:
-            raise Exception("Can't get message data" + str(e))
+            raise Exception(f"Can't get message data{str(e)}")
 
         return results
 
@@ -163,7 +163,7 @@ class GmailToolSpec(BaseToolSpec):
                 body = soup.get_text()
             return body.decode("utf-8")
         except Exception as e:
-            raise Exception("Can't parse message body" + str(e))
+            raise Exception(f"Can't parse message body{str(e)}")
 
     def _build_draft(
         self,
@@ -180,8 +180,7 @@ class GmailToolSpec(BaseToolSpec):
 
         encoded_message = base64.urlsafe_b64encode(email_message.as_bytes()).decode()
 
-        message_template = {"message": {"raw": encoded_message}}
-        return message_template
+        return {"message": {"raw": encoded_message}}
 
     def create_draft(
         self,
@@ -201,14 +200,12 @@ class GmailToolSpec(BaseToolSpec):
         self._cache_service()
         service = self.service
 
-        draft = (
+        return (
             service.users()
             .drafts()
             .create(userId="me", body=self._build_draft(to, subject, message))
             .execute()
         )
-
-        return draft
 
     def update_draft(
         self,
@@ -267,8 +264,7 @@ class GmailToolSpec(BaseToolSpec):
         """
         self._cache_service()
         service = self.service
-        draft = service.users().drafts().get(userId="me", id=draft_id).execute()
-        return draft
+        return service.users().drafts().get(userId="me", id=draft_id).execute()
 
     def send_draft(self, draft_id: str = None) -> str:
         """Sends a draft email.
@@ -280,7 +276,9 @@ class GmailToolSpec(BaseToolSpec):
         """
         self._cache_service()
         service = self.service
-        message = (
-            service.users().drafts().send(userId="me", body={"id": draft_id}).execute()
+        return (
+            service.users()
+            .drafts()
+            .send(userId="me", body={"id": draft_id})
+            .execute()
         )
-        return message

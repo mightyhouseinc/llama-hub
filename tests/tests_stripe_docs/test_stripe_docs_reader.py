@@ -15,10 +15,7 @@ def get_sitemap(file: str):
 
 
 def dummy_load_pages(urls: List[str]):
-    documents = []
-    for u in urls:
-        documents.append(Document(text="Bla", extra_info={"Source": u}))
-    return documents
+    return [Document(text="Bla", extra_info={"Source": u}) for u in urls]
 
 
 class TestSitemapReader(unittest.TestCase):

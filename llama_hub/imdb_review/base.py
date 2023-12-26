@@ -26,11 +26,11 @@ class IMDBReviews(BaseReader):
             multithreading (bool, optional): whether to use multithreading. Defaults to False.
             max_workers (int, optional): number of workers if you are using multithreading. Defaults to 0.
         """
-        assert webdriver_engine in [
+        assert webdriver_engine in {
             "google",
             "edge",
             "firefox",
-        ], "The webdriver should be in ['google','edge','firefox']"
+        }, "The webdriver should be in ['google','edge','firefox']"
         self.movie_name_year = movie_name_year
         self.webdriver_engine = webdriver_engine
         self.generate_csv = generate_csv
@@ -62,19 +62,17 @@ class IMDBReviews(BaseReader):
             self.reviews_folder,
         )
 
-        all_docs = []
-        for i in range(len(reviews_date)):
-            all_docs.append(
-                Document(
-                    text=reviews_title[i] + " " + reviews_comment[i],
-                    extra_info={
-                        "date": reviews_date[i],
-                        "rating": reviews_rating[i],
-                        "link": reviews_link[i],
-                        "found_helpful_votes": review_helpful[i],
-                        "total_votes": review_total_votes[i],
-                        "spolier": review_if_spoiler[i],
-                    },
-                )
+        return [
+            Document(
+                text=f"{reviews_title[i]} {reviews_comment[i]}",
+                extra_info={
+                    "date": reviews_date[i],
+                    "rating": reviews_rating[i],
+                    "link": reviews_link[i],
+                    "found_helpful_votes": review_helpful[i],
+                    "total_votes": review_total_votes[i],
+                    "spolier": review_if_spoiler[i],
+                },
             )
-        return all_docs
+            for i in range(len(reviews_date))
+        ]

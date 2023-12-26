@@ -49,17 +49,17 @@ class MacrometaGDNReader(BaseReader):
             collection_name: Name of the collection to read from
             
         """
-        url = self.url + "/_fabric/_system/_api/cursor"
+        url = f"{self.url}/_fabric/_system/_api/cursor"
         headers = {
             "accept": "application/json",
             "content-type": "application/json",
-            "Authorization": "apikey " + self.apikey,
+            "Authorization": f"apikey {self.apikey}",
         }
 
         data = {
             "batchSize": 1000,
             "ttl": 60,
-            "query": "FOR doc IN " + collection_name + " RETURN doc",
+            "query": f"FOR doc IN {collection_name} RETURN doc",
         }
         response = requests.post(url, headers=headers, data=json.dumps(data))
         response_json = response.json()
@@ -69,7 +69,7 @@ class MacrometaGDNReader(BaseReader):
             while response_json.get("hasMore"):
                 cursor_id = response_json.get("id")
 
-                next_url = self.url + "/_fabric/_system/_api/cursor/" + cursor_id
+                next_url = f"{self.url}/_fabric/_system/_api/cursor/{cursor_id}"
 
                 response = requests.put(next_url, headers=headers)
 

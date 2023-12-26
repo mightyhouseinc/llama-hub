@@ -108,8 +108,7 @@ def process_muted_text(mute_text: str) -> (float, float):
     """
     found_helpful, total = 0, 0
     pattern = r"(\d+)\s*out\s*of\s*(\d+) found this helpful"
-    match = re.search(pattern, mute_text)
-    if match:
+    if match := re.search(pattern, mute_text):
         # Extract the two numerical figures
         found_helpful = match.group(1)
         total = match.group(2)

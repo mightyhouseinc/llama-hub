@@ -5,10 +5,7 @@ from llama_hub.microsoft_onedrive.base import OneDriveReader
 from importlib.util import find_spec
 
 msal_spec = find_spec("msal")
-if msal_spec is None:
-    msal_available = False
-else:
-    msal_available = True
+msal_available = msal_spec is not None
 
 
 def test_onedrivereader_init():

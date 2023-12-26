@@ -150,8 +150,7 @@ class IndexLoader(pn.viewable.Viewer):
             + self.filter_directories
             + self.filter_file_extensions
         )
-        uid = uid.replace(",", "").replace(".", "")
-        return uid
+        return uid.replace(",", "").replace(".", "")
 
     @property
     def _cached_docs_path(self):

@@ -31,9 +31,7 @@ class ArxivToolSpec(BaseToolSpec):
         if sort_by == "recent":
             sort = arxiv.SortCriterion.SubmittedDate
         search = arxiv.Search(query, max_results=self.max_results, sort_by=sort)
-        results = []
-        for result in search.results():
-            results.append(
-                Document(text=f"{result.pdf_url}: {result.title}\n{result.summary}")
-            )
-        return results
+        return [
+            Document(text=f"{result.pdf_url}: {result.title}\n{result.summary}")
+            for result in search.results()
+        ]

@@ -59,8 +59,6 @@ async def test_github_client(github_client):
         == f"https://api.github.com/repos/{owner}/{repo}/git/trees/{commit_data.commit.tree.sha}"
     ), "Tree url is incorrect"
     assert tree_data.sha == commit_data.commit.tree.sha, "Tree sha is incorrect"
-    assert 1 == 1
-
     # test get_blob
     expected_files_in_first_depth_of_the_tree: List[Tuple[str, str]] = [
         ("test_requirements.txt", "blob"),

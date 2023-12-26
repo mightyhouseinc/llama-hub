@@ -118,8 +118,7 @@ class GuruReader(BaseReader):
                 "guru_link": self._get_guru_link(card_id),
             }
 
-            doc = Document(text=content, extra_info=metadata)
-            return doc
+            return Document(text=content, extra_info=metadata)
         else:
             logger.warning(f"Could not get card info for {card_id}.")
             return None
@@ -139,7 +138,7 @@ class GuruReader(BaseReader):
                 cleaned_text = soup.get_text()
             return cleaned_text
 
-        return str(text)
+        return text
 
     def _get_guru_link(self, card_id) -> str:
         """

@@ -38,11 +38,7 @@ class Capturing(list):
 class GradioReActAgentPack(BaseLlamaPack):
     """Gradio chatbot to chat with a ReActAgent pack."""
 
-    def __init__(
-        self,
-        tools_list: Optional[List[str]] = [k for k in SUPPORTED_TOOLS.keys()],
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, tools_list: Optional[List[str]] = list(SUPPORTED_TOOLS.keys()), **kwargs: Any) -> None:
         """Init params."""
         try:
             from ansi2html import Ansi2HTMLConverter

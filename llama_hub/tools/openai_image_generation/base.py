@@ -85,6 +85,4 @@ class OpenAIImageGenerationToolSpec(BaseToolSpec):
 
         filename = f"{time.time()}.jpg"
 
-        saved_image_path = self.save_base64_image(image_bytes, filename)
-
-        return saved_image_path
+        return self.save_base64_image(image_bytes, filename)

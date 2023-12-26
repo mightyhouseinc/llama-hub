@@ -220,16 +220,13 @@ def _commonType(*arrays):
                 result_type = double
             elif rt is None:
                 # unsupported inexact scalar
-                raise TypeError(
-                    "array type %s is unsupported in linalg" % (a.dtype.name,)
-                )
+                raise TypeError(f"array type {a.dtype.name} is unsupported in linalg")
         else:
             result_type = double
-    if is_complex:
-        result_type = _complex_types_map[result_type]
-        return cdouble, result_type
-    else:
+    if not is_complex:
         return double, result_type
+    result_type = _complex_types_map[result_type]
+    return cdouble, result_type
 
 
 def _to_native_byte_order(*arrays):
@@ -239,10 +236,7 @@ def _to_native_byte_order(*arrays):
             ret.append(asarray(arr, dtype=arr.dtype.newbyteorder("=")))
         else:
             ret.append(arr)
-    if len(ret) == 1:
-        return ret[0]
-    else:
-        return ret
+    return ret[0] if len(ret) == 1 else ret
 
 
 def _assert_2d(*arrays):
@@ -459,11 +453,7 @@ def solve(a, b):
 
     # We use the b = (..., M,) logic, only if the number of extra dimensions
     # match exactly
-    if b.ndim == a.ndim - 1:
-        gufunc = _umath_linalg.solve1
-    else:
-        gufunc = _umath_linalg.solve
-
+    gufunc = _umath_linalg.solve1 if b.ndim == a.ndim - 1 else _umath_linalg.solve
     signature = "DD->D" if isComplexType(t) else "dd->d"
     with errstate(
         call=_raise_linalgerror_singular,
@@ -536,14 +526,13 @@ def tensorinv(a, ind=2):
 
     """
     a = asarray(a)
-    oldshape = a.shape
     prod = 1
-    if ind > 0:
-        invshape = oldshape[ind:] + oldshape[:ind]
-        for k in oldshape[ind:]:
-            prod *= k
-    else:
+    if ind <= 0:
         raise ValueError("Invalid ind argument.")
+    oldshape = a.shape
+    invshape = oldshape[ind:] + oldshape[:ind]
+    for k in oldshape[ind:]:
+        prod *= k
     a = a.reshape(prod, -1)
     ia = inv(a)
     return ia.reshape(*invshape)
@@ -1026,11 +1015,7 @@ def qr(a, mode="reduced"):
     a = _to_native_byte_order(a)
     mn = min(m, n)
 
-    if m <= n:
-        gufunc = _umath_linalg.qr_r_raw_m
-    else:
-        gufunc = _umath_linalg.qr_r_raw_n
-
+    gufunc = _umath_linalg.qr_r_raw_m if m <= n else _umath_linalg.qr_r_raw_n
     signature = "D->D" if isComplexType(t) else "d->d"
     with errstate(
         call=_raise_linalgerror_qr,
@@ -1589,11 +1574,7 @@ def eigh(a, UPLO="L"):
     _assert_stacked_square(a)
     t, result_t = _commonType(a)
 
-    if UPLO == "L":
-        gufunc = _umath_linalg.eigh_lo
-    else:
-        gufunc = _umath_linalg.eigh_up
-
+    gufunc = _umath_linalg.eigh_lo if UPLO == "L" else _umath_linalg.eigh_up
     signature = "D->dD" if isComplexType(t) else "d->dd"
     with errstate(
         call=_raise_linalgerror_eigenvalues_nonconvergence,
@@ -1785,16 +1766,9 @@ def svd(a, full_matrices=True, compute_uv=True, hermitian=False):
     m, n = a.shape[-2:]
     if compute_uv:
         if full_matrices:
-            if m < n:
-                gufunc = _umath_linalg.svd_m_f
-            else:
-                gufunc = _umath_linalg.svd_n_f
+            gufunc = _umath_linalg.svd_m_f if m < n else _umath_linalg.svd_n_f
         else:
-            if m < n:
-                gufunc = _umath_linalg.svd_m_s
-            else:
-                gufunc = _umath_linalg.svd_n_s
-
+            gufunc = _umath_linalg.svd_m_s if m < n else _umath_linalg.svd_n_s
         signature = "D->DdD" if isComplexType(t) else "d->ddd"
         with errstate(
             call=_raise_linalgerror_svd_nonconvergence,
@@ -1809,11 +1783,7 @@ def svd(a, full_matrices=True, compute_uv=True, hermitian=False):
         vh = vh.astype(result_t, copy=False)
         return SVDResult(wrap(u), s, wrap(vh))
     else:
-        if m < n:
-            gufunc = _umath_linalg.svd_m
-        else:
-            gufunc = _umath_linalg.svd_n
-
+        gufunc = _umath_linalg.svd_m if m < n else _umath_linalg.svd_n
         signature = "D->d" if isComplexType(t) else "d->d"
         with errstate(
             call=_raise_linalgerror_svd_nonconvergence,
@@ -1917,10 +1887,7 @@ def cond(x, p=None):
     if p is None or p == 2 or p == -2:
         s = svd(x, compute_uv=False)
         with errstate(all="ignore"):
-            if p == -2:
-                r = s[..., -1] / s[..., 0]
-            else:
-                r = s[..., 0] / s[..., -1]
+            r = s[..., -1] / s[..., 0] if p == -2 else s[..., 0] / s[..., -1]
     else:
         # Call inv(x) ignoring errors. The result array will
         # contain nans in the entries where inversion failed.
@@ -2450,11 +2417,7 @@ def lstsq(a, b, rcond="warn"):
     if rcond is None:
         rcond = finfo(t).eps * max(n, m)
 
-    if m <= n:
-        gufunc = _umath_linalg.lstsq_m
-    else:
-        gufunc = _umath_linalg.lstsq_n
-
+    gufunc = _umath_linalg.lstsq_m if m <= n else _umath_linalg.lstsq_n
     signature = "DDd->Ddid" if isComplexType(t) else "ddd->ddid"
     if n_rhs == 0:
         # lapack can't handle n_rhs = 0 - so allocate the array one larger in that axis
@@ -2516,8 +2479,7 @@ def _multi_svd_norm(x, row_axis, col_axis, op):
 
     """
     y = moveaxis(x, (row_axis, col_axis), (-2, -1))
-    result = op(svd(y, compute_uv=False), axis=-1)
-    return result
+    return op(svd(y, compute_uv=False), axis=-1)
 
 
 def _norm_dispatcher(x, ord=None, axis=None, keepdims=None):
@@ -2973,14 +2935,13 @@ def _multi_dot_matrix_chain_order(arrays, return_costs=False):
 
 def _multi_dot(arrays, order, i, j, out=None):
     """Actually do the multiplication with the given order."""
-    if i == j:
-        # the initial call with non-None out should never get here
-        assert out is None
-
-        return arrays[i]
-    else:
+    if i != j:
         return dot(
             _multi_dot(arrays, order, i, order[i, j]),
             _multi_dot(arrays, order, order[i, j] + 1, j),
             out=out,
         )
+    # the initial call with non-None out should never get here
+    assert out is None
+
+    return arrays[i]

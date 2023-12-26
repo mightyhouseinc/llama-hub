@@ -110,7 +110,7 @@ class EvaluatorBenchmarkerPack(BaseLlamaPack):
 
     def _prepare_and_save_benchmark_results_single_grading(self) -> pd.DataFrame:
         """Compute benchmark metrics for single grading evaluation."""
-        invalid_counts = sum([p.invalid_prediction for p in self.prediction_dataset[:]])
+        invalid_counts = sum(p.invalid_prediction for p in self.prediction_dataset[:])
         np_preds = np.array([p.score for p in self.prediction_dataset[:]])
         np_refs = np.array([e.reference_score for e in self.eval_dataset[:]])
         invalid_mask = ~np.array(
@@ -157,6 +157,4 @@ class EvaluatorBenchmarkerPack(BaseLlamaPack):
         if self.prediction_dataset is None:
             await self._amake_predictions(batch_size, sleep_time_in_seconds)
 
-        # produce metrics
-        benchmark_df = self._make_evaluations()
-        return benchmark_df
+        return self._make_evaluations()

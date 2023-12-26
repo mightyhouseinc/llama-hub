@@ -259,8 +259,8 @@ class PlaygroundsSubgraphInspectorToolSpec(GraphQLToolSpec):
             ),
         ]
 
-        result_lines = []
-        for category, desc, example, entities in sections:
-            result_lines.append(self.format_section(category, desc, example, entities))
-
+        result_lines = [
+            self.format_section(category, desc, example, entities)
+            for category, desc, example, entities in sections
+        ]
         return "\n".join(result_lines)

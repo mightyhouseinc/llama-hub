@@ -32,8 +32,7 @@ class TextToImageToolSpec(BaseToolSpec):
         """
         try:
             response = openai.Image.create(prompt=prompt, n=n, size=size)
-            images = [image["url"] for image in response["data"]]
-            return images
+            return [image["url"] for image in response["data"]]
         except openai.error.OpenAIError as e:
             return e.error
 
@@ -54,8 +53,7 @@ class TextToImageToolSpec(BaseToolSpec):
             response = openai.Image.create_variation(
                 image=BytesIO(requests.get(url).content).getvalue(), n=n, size=size
             )
-            images = [image["url"] for image in response["data"]]
-            return images
+            return [image["url"] for image in response["data"]]
         except openai.error.OpenAIError as e:
             return e.error
 

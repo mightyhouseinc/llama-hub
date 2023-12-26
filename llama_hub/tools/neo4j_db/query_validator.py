@@ -183,7 +183,7 @@ class CypherQueryCorrector:
                     match_dict["relation"]
                 )
 
-                if relation_types != [] and "".join(relation_types).find("*") != -1:
+                if relation_types != [] and "*" in "".join(relation_types):
                     start_idx += (
                         len(match_dict["left_node"]) + len(match_dict["relation"]) + 2
                     )
@@ -194,37 +194,37 @@ class CypherQueryCorrector:
                         left_node_labels, relation_types, right_node_labels
                     )
                     if not is_legal:
-                        is_legal = self.verify_schema(
-                            right_node_labels, relation_types, left_node_labels
-                        )
-                        if is_legal:
-                            corrected_relation = "<" + match_dict["relation"][:-1]
-                            corrected_partial_path = original_partial_path.replace(
-                                match_dict["relation"], corrected_relation
+                        if not (
+                            is_legal := self.verify_schema(
+                                right_node_labels, relation_types, left_node_labels
                             )
-                            query = query.replace(
-                                original_partial_path, corrected_partial_path
-                            )
-                        else:
+                        ):
                             return ""
+                        corrected_relation = "<" + match_dict["relation"][:-1]
+                        corrected_partial_path = original_partial_path.replace(
+                            match_dict["relation"], corrected_relation
+                        )
+                        query = query.replace(
+                            original_partial_path, corrected_partial_path
+                        )
                 elif relation_direction == "INCOMING":
                     is_legal = self.verify_schema(
                         right_node_labels, relation_types, left_node_labels
                     )
                     if not is_legal:
-                        is_legal = self.verify_schema(
-                            left_node_labels, relation_types, right_node_labels
-                        )
-                        if is_legal:
-                            corrected_relation = match_dict["relation"][1:] + ">"
-                            corrected_partial_path = original_partial_path.replace(
-                                match_dict["relation"], corrected_relation
+                        if not (
+                            is_legal := self.verify_schema(
+                                left_node_labels, relation_types, right_node_labels
                             )
-                            query = query.replace(
-                                original_partial_path, corrected_partial_path
-                            )
-                        else:
+                        ):
                             return ""
+                        corrected_relation = match_dict["relation"][1:] + ">"
+                        corrected_partial_path = original_partial_path.replace(
+                            match_dict["relation"], corrected_relation
+                        )
+                        query = query.replace(
+                            original_partial_path, corrected_partial_path
+                        )
                 else:
                     is_legal = self.verify_schema(
                         left_node_labels, relation_types, right_node_labels

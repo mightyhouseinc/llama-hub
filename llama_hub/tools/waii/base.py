@@ -91,8 +91,7 @@ class WaiiToolSpec(BaseToolSpec, BaseReader):
             n_chars += len(t)
 
         summarizer = TreeSummarize()
-        response = summarizer.get_response(original_ask, texts)
-        return response
+        return summarizer.get_response(original_ask, texts)
 
     def get_answer(self, ask: str):
         """
@@ -147,8 +146,7 @@ class WaiiToolSpec(BaseToolSpec, BaseReader):
         result = json.dumps(result.dict(), indent=2)
         self._try_display(result)
 
-        response = self._get_summarization(question, [Document(text=result)])
-        return response
+        return self._get_summarization(question, [Document(text=result)])
 
     def performance_analyze(self, query_uuid: str):
         """
@@ -234,13 +232,11 @@ class WaiiToolSpec(BaseToolSpec, BaseReader):
         for schema in schemas:
             schemas[schema].tables = None
 
-        # generate response
-        response = self._get_summarization(
-            ask + ", use the provided information to get comprehensive summarization",
+        return self._get_summarization(
+            f"{ask}, use the provided information to get comprehensive summarization",
             [Document(text=str(schemas[schema])) for schema in schemas]
             + [Document(text=str(tables[table])) for table in tables],
         )
-        return response
 
     def transcode(
         self,
